@@ -16,7 +16,7 @@
 
 #include "CoreMinimal.h"
 
-#if WITH_DEV_AUTOMATION_TESTS || defined WITH_GG_TESTS
+#if WITH_DEV_AUTOMATION_TESTS || defined(WITH_GG_TESTS)
 
 extern NANSCOREHELPERS_API bool GNAssertThrowError;
 
@@ -27,6 +27,7 @@ extern NANSCOREHELPERS_API bool GNAssertThrowError;
 			throw TEXT(#expr); \
 		}                      \
 	}
+
 #define mycheckf(expr, format, ...) AssertHelpers::LogAndThrow(!!(expr), TEXT(#expr), format, ##__VA_ARGS__)
 
 #define myensureMsgf(InExpression, InFormat, ...) \
