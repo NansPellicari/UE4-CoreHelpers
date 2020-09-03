@@ -20,21 +20,60 @@
 
 extern NANSCOREHELPERS_API bool GNAssertThrowError;
 
-#define mycheck(expr)          \
-	{                          \
-		if (UNLIKELY(!(expr))) \
-		{                      \
-			throw TEXT(#expr); \
-		}                      \
-	}
+#define mycheck(expr) AssertHelpers::CheckOrThrow(expr, TEXT(#expr))
 
-#define mycheckf(expr, format, ...) AssertHelpers::LogAndThrow(!!(expr), TEXT(#expr), format, ##__VA_ARGS__)
+#define mycheckf(expr, format, ...) AssertHelpers::CheckfOrThrow(!!(expr), TEXT(#expr), format, ##__VA_ARGS__)
 
 #define myensureMsgf(InExpression, InFormat, ...) \
-	(AssertHelpers::LogAndThrow(!!(InExpression), TEXT(#InExpression), InFormat, ##__VA_ARGS__))
+	(AssertHelpers::EnsureMsgfOrThrow(!!(InExpression), TEXT(#InExpression), InFormat, ##__VA_ARGS__))
 
 namespace AssertHelpers
 {
+	template <typename ExprType>
+	inline bool CheckOrThrow(const bool Result, const ExprType& Expr)
+	{
+		if (GIsAutomationTesting)
+		{
+			if (UNLIKELY(!(Result)))
+			{
+				throw Expr;
+			}
+		}
+		else
+		{
+			check(Result);
+		}
+
+		return true;
+	}
+
+	template <typename ExprType, typename FmtType, typename... Types>
+	inline bool CheckfOrThrow(const bool Result, const ExprType& Expr, const FmtType& Format, Types... Args)
+	{
+		if (GIsAutomationTesting)
+		{
+			return AssertHelpers::LogAndThrow(Result, Expr, Format, Args...);
+		}
+		else
+		{
+			checkf(Result, Format, Args...);
+		}
+		return true;
+	}
+
+	template <typename ExprType, typename FmtType, typename... Types>
+	inline bool EnsureMsgfOrThrow(const bool Result, const ExprType& Expr, const FmtType& Format, Types... Args)
+	{
+		if (GIsAutomationTesting)
+		{
+			return AssertHelpers::LogAndThrow(Result, Expr, Format, Args...);
+		}
+		else
+		{
+			return ensureMsgf(Result, Format, Args...);
+		}
+	}
+
 	template <typename ExprType, typename FmtType, typename... Types>
 	inline bool LogAndThrow(const bool Result, const ExprType& Expr, const FmtType& Format, Types... Args)
 	{
