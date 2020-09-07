@@ -41,7 +41,7 @@ namespace AssertHelpers
 		}
 		else
 		{
-			check(Result);
+			checkf(Result, Expr);
 		}
 
 		return true;
