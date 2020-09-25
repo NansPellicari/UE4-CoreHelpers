@@ -157,6 +157,25 @@ FVector NMathUtilities::GetClosestCorner(
 	return ClosestCorner;
 };
 
+FVector2D NMathUtilities::FindCentroid(const TArray<FVector2D> Positions)
+{
+	FVector2D centroid;
+	FVector2D MinPoint = Positions[0];
+	FVector2D MaxPoint = Positions[0];
+
+	for (FVector2D Pos : Positions)
+	{
+		if (Pos.X < MinPoint.X) MinPoint.X = Pos.X;
+		if (Pos.X > MaxPoint.X) MaxPoint.X = Pos.X;
+		if (Pos.Y < MinPoint.Y) MinPoint.Y = Pos.Y;
+		if (Pos.Y > MaxPoint.Y) MaxPoint.Y = Pos.Y;
+	}
+
+	centroid = MinPoint + 0.5f * (MaxPoint - MinPoint);
+
+	return centroid;
+}
+
 bool NGeometry::Intersects(const FBox& AABB, const FOrientedBox& OBB)
 {
 	// Thanks to this: https://github.com/gszauer/GamePhysicsCookbook/blob/master/Code/Geometry3D.cpp

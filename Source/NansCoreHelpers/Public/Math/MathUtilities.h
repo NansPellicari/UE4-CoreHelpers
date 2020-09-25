@@ -72,6 +72,9 @@ class NANSCOREHELPERS_API NMathUtilities
 public:
 	static FVector GetClosestCorner(
 		int32 SideToTest, const FZoneBox& Box, const TCorners& CornerData, ELateralityOrientation& Side, bool bDebug = false);
+
+	// Thank to this https://answers.unity.com/questions/511841/how-to-make-an-object-move-away-from-three-or-more.html
+	static FVector2D FindCentroid(const TArray<FVector2D> Positions);
 };
 
 /**
