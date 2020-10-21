@@ -4,7 +4,9 @@
 
 #include "MathUtilities.generated.h"
 
+#ifndef TOFLAG
 #define TOFLAG(Enum) (1 << static_cast<uint8>(Enum))
+#endif
 
 /** This is relative to the zone, not the player */
 UENUM(BlueprintType, Meta = (Bitflags, UseEnumValuesAsMaskValuesInEditor = "true"))
