@@ -14,6 +14,7 @@
 
 #include "Misc/NansAssertionMacros.h"
 
-#if WITH_DEV_AUTOMATION_TESTS || defined WITH_GG_TESTS
+#if !UE_BUILD_SHIPPING && WITH_DEV_AUTOMATION_TESTS
 bool GNAssertThrowError = true;
+bool GIsGGTests = false;
 #endif

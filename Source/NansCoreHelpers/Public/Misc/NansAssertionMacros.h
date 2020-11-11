@@ -16,9 +16,10 @@
 
 #include "CoreMinimal.h"
 
-#if WITH_DEV_AUTOMATION_TESTS || defined(WITH_GG_TESTS)
+#if !UE_BUILD_SHIPPING && WITH_DEV_AUTOMATION_TESTS
 
 extern NANSCOREHELPERS_API bool GNAssertThrowError;
+extern NANSCOREHELPERS_API bool GIsGGTests;
 
 #define mycheck(expr) AssertHelpers::CheckOrThrow(expr, TEXT(#expr))
 
@@ -32,7 +33,7 @@ namespace AssertHelpers
 	template <typename ExprType>
 	inline bool CheckOrThrow(const bool Result, const ExprType& Expr)
 	{
-		if (GIsAutomationTesting)
+		if (GIsAutomationTesting || GIsGGTests)
 		{
 			if (UNLIKELY(!(Result)))
 			{
@@ -50,7 +51,7 @@ namespace AssertHelpers
 	template <typename ExprType, typename FmtType, typename... Types>
 	inline bool CheckfOrThrow(const bool Result, const ExprType& Expr, const FmtType& Format, Types... Args)
 	{
-		if (GIsAutomationTesting)
+		if (GIsAutomationTesting || GIsGGTests)
 		{
 			return AssertHelpers::LogAndThrow(Result, Expr, Format, Args...);
 		}
@@ -64,7 +65,7 @@ namespace AssertHelpers
 	template <typename ExprType, typename FmtType, typename... Types>
 	inline bool EnsureMsgfOrThrow(const bool Result, const ExprType& Expr, const FmtType& Format, Types... Args)
 	{
-		if (GIsAutomationTesting)
+		if (GIsAutomationTesting || GIsGGTests)
 		{
 			return AssertHelpers::LogAndThrow(Result, Expr, Format, Args...);
 		}
