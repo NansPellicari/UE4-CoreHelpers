@@ -16,7 +16,7 @@
 
 #include "CoreMinimal.h"
 
-#if !UE_BUILD_SHIPPING && WITH_DEV_AUTOMATION_TESTS
+#if !UE_BUILD_SHIPPING && WITH_DEV_AUTOMATION_TESTS && !(PLATFORM_ANDROID || PLATFORM_IOS)
 
 extern NANSCOREHELPERS_API bool GNAssertThrowError;
 extern NANSCOREHELPERS_API bool GIsGGTests;
@@ -49,7 +49,7 @@ namespace AssertHelpers
 	}
 
 	template <typename ExprType, typename FmtType, typename... Types>
-	inline bool CheckfOrThrow(const bool Result, const ExprType& Expr, const FmtType& Format, Types... Args)
+	inline bool CheckfOrThrow(const bool Result, const ExprType& Expr, const FmtType& Format, Types ... Args)
 	{
 		if (GIsAutomationTesting || GIsGGTests)
 		{
@@ -63,7 +63,7 @@ namespace AssertHelpers
 	}
 
 	template <typename ExprType, typename FmtType, typename... Types>
-	inline bool EnsureMsgfOrThrow(const bool Result, const ExprType& Expr, const FmtType& Format, Types... Args)
+	inline bool EnsureMsgfOrThrow(const bool Result, const ExprType& Expr, const FmtType& Format, Types ... Args)
 	{
 		if (GIsAutomationTesting || GIsGGTests)
 		{
@@ -76,7 +76,7 @@ namespace AssertHelpers
 	}
 
 	template <typename ExprType, typename FmtType, typename... Types>
-	inline bool LogAndThrow(const bool Result, const ExprType& Expr, const FmtType& Format, Types... Args)
+	inline bool LogAndThrow(const bool Result, const ExprType& Expr, const FmtType& Format, Types ... Args)
 	{
 		if (!Result)
 		{
@@ -85,7 +85,7 @@ namespace AssertHelpers
 		}
 		return Result;
 	}
-}	 // namespace AssertHelpers
+} // namespace AssertHelpers
 #else
 #define mycheck(expr) check(expr)
 #define mycheckf(expr, format, ...) checkf(expr, format, ##__VA_ARGS__)
