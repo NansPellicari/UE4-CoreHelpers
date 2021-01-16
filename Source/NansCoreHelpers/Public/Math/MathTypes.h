@@ -16,4 +16,11 @@ public:
 	float Lh = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Range")
 	float Rh = 100;
+
+	float GetBoundValue(const float& Percent) const
+	{
+		float MinBound = FMath::Min(Lh, Rh);
+		float MaxBound = FMath::Max(Lh, Rh);
+		return (MaxBound - MinBound) * Percent + MinBound;
+	}
 };
