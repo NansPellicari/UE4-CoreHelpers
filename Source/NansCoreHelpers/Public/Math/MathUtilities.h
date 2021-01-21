@@ -48,7 +48,8 @@ struct NANSCOREHELPERS_API FZoneBox
 
 	FZoneBox();
 
-	FZoneBox(FVector _Origin, FVector _Extent, FRotator _Rotation) : Origin(_Origin), Extent(_Extent), Rotation(_Rotation) {}
+	FZoneBox(FVector _Origin, FVector _Extent, FRotator _Rotation) : Origin(_Origin), Extent(_Extent),
+																	 Rotation(_Rotation) {}
 
 	/** Only returns the FBox (AAB) build with origin and extend */
 	FBox GetBox() const;
@@ -73,7 +74,8 @@ class NANSCOREHELPERS_API NMathUtilities
 {
 public:
 	static FVector GetClosestCorner(
-		int32 SideToTest, const FZoneBox& Box, const TCorners& CornerData, ELateralityOrientation& Side, bool bDebug = false);
+		int32 SideToTest, const FZoneBox& Box, const TCorners& CornerData, ELateralityOrientation& Side,
+		bool bDebug = false);
 
 	// Thank to this https://answers.unity.com/questions/511841/how-to-make-an-object-move-away-from-three-or-more.html
 	static FVector2D FindCentroid(const TArray<FVector2D> Positions);
@@ -85,6 +87,9 @@ public:
 class NANSCOREHELPERS_API NGeometry
 {
 public:
+	static bool Intersect(FIntRect Rect1, FIntRect Rect2);
+	static FIntRect UnionOnIntersect(TArray<FIntRect> Rects, bool bDebug = false);
+	static FIntRect UnionOnIntersect(FIntRect Rect1, FIntRect Rect2);
 	static FOrientedBox CreateOrientedBox(const FBox& AABB, const FRotator& Rot);
 	static bool Intersects(const FBox& AABB, const FOrientedBox& OBB);
 	static bool Intersects(const FOrientedBox& OBB, const FSphere& Sphere);

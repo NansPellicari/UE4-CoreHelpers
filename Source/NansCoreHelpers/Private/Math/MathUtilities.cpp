@@ -11,6 +11,7 @@ FBox FZoneBox::GetBox() const
 {
 	return FBox(Origin - Extent, Origin + Extent);
 }
+
 FBox FZoneBox::GetBoundingBox() const
 {
 	FOrientedBox OBB = GetOrientedBox();
@@ -24,6 +25,7 @@ FSphere FZoneBox::GetSphere() const
 {
 	return FSphere(Origin, Extent.GetMax());
 }
+
 FSphere FZoneBox::GetSphereXY() const
 {
 	FVector OToE = Origin + FVector(Extent.X, Extent.Y, 0);
@@ -176,6 +178,161 @@ FVector2D NMathUtilities::FindCentroid(const TArray<FVector2D> Positions)
 	return centroid;
 }
 
+bool NGeometry::Intersect(FIntRect Rect1, FIntRect Rect2)
+{
+	if ((Rect1.Min.X > Rect2.Max.X) || (Rect2.Min.X > Rect1.Max.X))
+	{
+		return false;
+	}
+
+	if ((Rect1.Min.Y > Rect2.Max.Y) || (Rect2.Min.Y > Rect1.Max.Y))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+FIntRect NGeometry::UnionOnIntersect(TArray<FIntRect> Rects, bool bDebug)
+{
+	Rects.Sort(
+		[](const FIntRect& LH, const FIntRect& RH)
+		{
+			return LH.Min.X <= RH.Min.X;
+		}
+	);
+
+	FIntRect TotalArea;
+	for (auto& Rect : Rects)
+	{
+		if (TotalArea.Min == FIntPoint(0, 0) && TotalArea.Max == FIntPoint(0, 0))
+		{
+			TotalArea = Rect;
+		}
+		else
+		{
+			TotalArea.Union(Rect);
+		}
+		// std::cout << "Rect: " << TCHAR_TO_ANSI(*Rect.ToString()) << "\n";
+	}
+
+	// std::cout << "TotalArea: " << TCHAR_TO_ANSI(*TotalArea.ToString()) << "\n";
+
+	FIntRect OutRect;
+	for (int32 Y = 1; Y <= TotalArea.Max.Y; ++Y)
+	{
+		int32 StartX = -1;
+		int32 EndX = 0;
+		for (auto& Rect : Rects)
+		{
+			if (Rect.Min.Y < Y && Rect.Max.Y >= Y)
+			{
+				if (StartX == -1)
+				{
+					StartX = Rect.Min.X;
+				}
+
+				// Means there is a gap between 2 blocks, so they are not contiguous and can't be merged 
+				if (EndX > 0 && Rect.Min.X > EndX)
+				{
+					StartX = -1;
+					EndX = 0;
+					break;
+				}
+				EndX = Rect.Max.X;
+			}
+		}
+
+		// Find a way to use std::cout for Engine
+		// if (bDebug)
+		// {
+		// 	FString Row;
+		// 	int32 PositionOnX = 0;
+		// 	int32 RectIdx = 0;
+		// 	for (auto& Rect : Rects)
+		// 	{
+		// 		if (Rect.Min.Y < Y && Rect.Max.Y >= Y)
+		// 		{
+		// 			FString Col;
+		// 			if (Rect.Min.X > PositionOnX)
+		// 			{
+		// 				for (int32 B = 0; B < Rect.Min.X - PositionOnX; ++B)
+		// 				{
+		// 					Col.Append(TEXT(" |"));
+		// 				}
+		// 			}
+		// 			PositionOnX = Rect.Max.X;
+		// 			for (int32 B = 0; B < Rect.Max.X - Rect.Min.X; ++B)
+		// 			{
+		// 				Col.Append(*FString::FromInt(RectIdx));
+		// 				Col.Append("|");
+		// 			}
+		// 			Row.Append(Col);
+		// 		}
+		// 		RectIdx++;
+		// 	}
+		// 	if (PositionOnX < TotalArea.Max.X)
+		// 	{
+		// 		for (int32 B = 0; B < TotalArea.Max.X - PositionOnX; ++B)
+		// 		{
+		// 			Row.Append(TEXT(" |"));
+		// 		}
+		// 	}
+		//
+		// 	std::cout << "|" << TCHAR_TO_ANSI(*Row);
+		// 	std::cout << " \n";
+		// }
+
+		if (StartX == -1 && EndX == 0)
+		{
+			// Means no contiguous rectangles
+			continue;
+		}
+
+		FIntRect NewLineRect(
+			FIntPoint(StartX, Y - 1),
+			FIntPoint(EndX, Y)
+		);
+		// std::cout << "StartX : " << StartX << "\n";
+		// std::cout << "EndX   : " << EndX << "\n";
+		if (OutRect.Min.X == 0 && OutRect.Max.Y == 0)
+		{
+			OutRect = NewLineRect;
+		}
+		else
+		{
+			FIntRect IntersectLineRect = NGeometry::UnionOnIntersect(OutRect, NewLineRect);
+			if (IntersectLineRect.Area() > OutRect.Area())
+			{
+				OutRect = IntersectLineRect;
+			}
+		}
+		// std::cout << "OutRect " << Y << ": " << TCHAR_TO_ANSI(*OutRect.ToString()) << "\n";
+	}
+	return OutRect;
+}
+
+FIntRect NGeometry::UnionOnIntersect(FIntRect Rect1, FIntRect Rect2)
+{
+	FIntRect RectOut;
+	if (Rect1.Max.X <= Rect2.Min.X || Rect2.Max.X <= Rect1.Min.X)
+	{
+		RectOut.Min.X = FMath::Min<int32>(Rect1.Min.X, Rect2.Min.X);
+		RectOut.Min.Y = FMath::Max<int32>(Rect1.Min.Y, Rect2.Min.Y);
+		RectOut.Max.X = FMath::Max<int32>(Rect1.Max.X, Rect2.Max.X);
+		RectOut.Max.Y = FMath::Min<int32>(Rect1.Max.Y, Rect2.Max.Y);
+	}
+	else
+	{
+		RectOut.Min.X = FMath::Max<int32>(Rect1.Min.X, Rect2.Min.X);
+		RectOut.Min.Y = FMath::Min<int32>(Rect1.Min.Y, Rect2.Min.Y);
+		RectOut.Max.X = FMath::Min<int32>(Rect1.Max.X, Rect2.Max.X);
+		RectOut.Max.Y = FMath::Max<int32>(Rect1.Max.Y, Rect2.Max.Y);
+	}
+
+	return RectOut;
+}
+
 bool NGeometry::Intersects(const FBox& AABB, const FOrientedBox& OBB)
 {
 	// Thanks to this: https://github.com/gszauer/GamePhysicsCookbook/blob/master/Code/Geometry3D.cpp
@@ -185,7 +342,8 @@ bool NGeometry::Intersects(const FBox& AABB, const FOrientedBox& OBB)
 	FVector Test[15] = {FVector(1, 0, 0), FVector(0, 1, 0), FVector(0, 0, 1), O[0], O[1], O[2]};
 
 	for (int I = 0; I < 3; ++I)
-	{	 // Fill out rest of axis
+	{
+		// Fill out rest of axis
 		Test[6 + I * 3 + 0] = FVector::CrossProduct(Test[I], Test[0]);
 		Test[6 + I * 3 + 1] = FVector::CrossProduct(Test[I], Test[1]);
 		Test[6 + I * 3 + 2] = FVector::CrossProduct(Test[I], Test[2]);
@@ -195,7 +353,7 @@ bool NGeometry::Intersects(const FBox& AABB, const FOrientedBox& OBB)
 	{
 		if (!NGeometry::OverlapOnAxis(AABB, OBB, Test[I]))
 		{
-			return false;	 // Seperating axis found
+			return false; // Seperating axis found
 		}
 	}
 
@@ -249,7 +407,8 @@ bool NGeometry::Intersects(const FOrientedBox& OBB1, const FOrientedBox& OBB2)
 	// // // FVector Test[15] = {OBB1.AxisX, OBB1.AxisY, OBB1.AxisZ, OBB2.AxisX, OBB2.AxisY, OBB2.AxisZ};
 
 	for (int I = 0; I < 3; ++I)
-	{	 // Fill out rest of axis
+	{
+		// Fill out rest of axis
 		Test[6 + I * 3 + 0] = FVector::CrossProduct(Test[I], Test[0]);
 		Test[6 + I * 3 + 1] = FVector::CrossProduct(Test[I], Test[1]);
 		Test[6 + I * 3 + 2] = FVector::CrossProduct(Test[I], Test[2]);
@@ -259,7 +418,7 @@ bool NGeometry::Intersects(const FOrientedBox& OBB1, const FOrientedBox& OBB2)
 	{
 		if (!NGeometry::OverlapOnAxis(OBB1, OBB2, Test[I]))
 		{
-			return false;	 // Seperating axis found
+			return false; // Seperating axis found
 		}
 	}
 
@@ -295,14 +454,16 @@ FFloatInterval NGeometry::GetInterval(const FBox& AABB, const FVector& Axis)
 
 TArray<FVector> NGeometry::GetVertices(const FBox& AABB)
 {
-	TArray<FVector> Vertices = {FVector(AABB.Min),
+	TArray<FVector> Vertices = {
+		FVector(AABB.Min),
 		FVector(AABB.Min.X, AABB.Min.Y, AABB.Max.Z),
 		FVector(AABB.Min.X, AABB.Max.Y, AABB.Min.Z),
 		FVector(AABB.Max.X, AABB.Min.Y, AABB.Min.Z),
 		FVector(AABB.Max.X, AABB.Max.Y, AABB.Min.Z),
 		FVector(AABB.Max.X, AABB.Min.Y, AABB.Max.Z),
 		FVector(AABB.Min.X, AABB.Max.Y, AABB.Max.Z),
-		FVector(AABB.Max)};
+		FVector(AABB.Max)
+	};
 	return Vertices;
 }
 
