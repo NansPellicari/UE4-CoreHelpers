@@ -1,3 +1,16 @@
+//  Copyright 2020-present Nans Pellicari (nans.pellicari@gmail.com).
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include "Math/MathUtilities.h"
 
 FZoneBox::FZoneBox()
@@ -136,24 +149,24 @@ FVector NMathUtilities::GetClosestCorner(
 {
 	FVector ClosestCorner;
 
-	if (SideToTest & ELateralityOrientation::Left && SideToTest & ELateralityOrientation::Right)
+	if (SideToTest & Left && SideToTest & Right)
 	{
 		float LeftDist = (Box.Origin - CornerData[0]).Size();
 		float RightDist = (Box.Origin - CornerData[1]).Size();
-		Side = LeftDist < RightDist ? ELateralityOrientation::Left : ELateralityOrientation::Right;
+		Side = LeftDist < RightDist ? Left : Right;
 		ClosestCorner = LeftDist < RightDist ? CornerData[0] : CornerData[1];
 		if (bDebug) UE_LOG(LogTemp, Warning, TEXT("%s - corner on  both"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
-	else if (SideToTest & ELateralityOrientation::Left)
+	else if (SideToTest & Left)
 	{
 		ClosestCorner = CornerData[0];
-		Side = ELateralityOrientation::Left;
+		Side = Left;
 		if (bDebug) UE_LOG(LogTemp, Warning, TEXT("%s - corner on left"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 	else
 	{
 		ClosestCorner = CornerData[1];
-		Side = ELateralityOrientation::Right;
+		Side = Right;
 		if (bDebug) UE_LOG(LogTemp, Warning, TEXT("%s - corner on right"), ANSI_TO_TCHAR(__FUNCTION__));
 	}
 	return ClosestCorner;
@@ -178,16 +191,31 @@ FVector2D NMathUtilities::FindCentroid(const TArray<FVector2D> Positions)
 	return centroid;
 }
 
-bool NGeometry::Intersect(FIntRect Rect1, FIntRect Rect2)
+bool NGeometry::Intersect(FIntRect Rect1, FIntRect Rect2, bool bOnSideToSide)
 {
-	if ((Rect1.Min.X > Rect2.Max.X) || (Rect2.Min.X > Rect1.Max.X))
+	if (bOnSideToSide)
 	{
-		return false;
-	}
+		if ((Rect1.Min.X > Rect2.Max.X) || (Rect2.Min.X > Rect1.Max.X))
+		{
+			return false;
+		}
 
-	if ((Rect1.Min.Y > Rect2.Max.Y) || (Rect2.Min.Y > Rect1.Max.Y))
+		if ((Rect1.Min.Y > Rect2.Max.Y) || (Rect2.Min.Y > Rect1.Max.Y))
+		{
+			return false;
+		}
+	}
+	else
 	{
-		return false;
+		if ((Rect1.Min.X >= Rect2.Max.X) || (Rect2.Min.X >= Rect1.Max.X))
+		{
+			return false;
+		}
+
+		if ((Rect1.Min.Y >= Rect2.Max.Y) || (Rect2.Min.Y >= Rect1.Max.Y))
+		{
+			return false;
+		}
 	}
 
 	return true;
@@ -301,7 +329,7 @@ FIntRect NGeometry::UnionOnIntersect(TArray<FIntRect> Rects, bool bDebug)
 		}
 		else
 		{
-			FIntRect IntersectLineRect = NGeometry::UnionOnIntersect(OutRect, NewLineRect);
+			FIntRect IntersectLineRect = UnionOnIntersect(OutRect, NewLineRect);
 			if (IntersectLineRect.Area() > OutRect.Area())
 			{
 				OutRect = IntersectLineRect;
@@ -351,7 +379,7 @@ bool NGeometry::Intersects(const FBox& AABB, const FOrientedBox& OBB)
 
 	for (int I = 0; I < 15; ++I)
 	{
-		if (!NGeometry::OverlapOnAxis(AABB, OBB, Test[I]))
+		if (!OverlapOnAxis(AABB, OBB, Test[I]))
 		{
 			return false; // Seperating axis found
 		}
@@ -416,7 +444,7 @@ bool NGeometry::Intersects(const FOrientedBox& OBB1, const FOrientedBox& OBB2)
 
 	for (int I = 0; I < 15; ++I)
 	{
-		if (!NGeometry::OverlapOnAxis(OBB1, OBB2, Test[I]))
+		if (!OverlapOnAxis(OBB1, OBB2, Test[I]))
 		{
 			return false; // Seperating axis found
 		}
@@ -434,14 +462,14 @@ bool NGeometry::OverlapOnAxis(const FOrientedBox& OBB1, const FOrientedBox& OBB2
 
 bool NGeometry::OverlapOnAxis(const FBox& AABB, const FOrientedBox& OBB, const FVector& Axis)
 {
-	FFloatInterval A = NGeometry::GetInterval(AABB, Axis);
+	FFloatInterval A = GetInterval(AABB, Axis);
 	FFloatInterval B = OBB.Project(Axis);
 	return ((B.Min <= A.Max) && (A.Min <= B.Max));
 }
 
 FFloatInterval NGeometry::GetInterval(const FBox& AABB, const FVector& Axis)
 {
-	TArray<FVector> Vertices = NGeometry::GetVertices(AABB);
+	TArray<FVector> Vertices = GetVertices(AABB);
 	FFloatInterval ProjectionInterval;
 
 	for (int i = 1; i < 8; ++i)

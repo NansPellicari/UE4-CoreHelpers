@@ -1,11 +1,10 @@
-// Copyright 2020-present Nans Pellicari (nans.pellicari@gmail.com).
-//
+//  Copyright 2020-present Nans Pellicari (nans.pellicari@gmail.com).
+// 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
 // http://www.apache.org/licenses/LICENSE-2.0
-//
+// 
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -31,7 +30,7 @@ extern NANSCOREHELPERS_API bool GIsGGTests;
 namespace AssertHelpers
 {
 	template <typename ExprType>
-	inline bool CheckOrThrow(const bool Result, const ExprType& Expr)
+	bool CheckOrThrow(const bool Result, const ExprType& Expr)
 	{
 		if (GIsAutomationTesting || GIsGGTests)
 		{
@@ -49,34 +48,28 @@ namespace AssertHelpers
 	}
 
 	template <typename ExprType, typename FmtType, typename... Types>
-	inline bool CheckfOrThrow(const bool Result, const ExprType& Expr, const FmtType& Format, Types ... Args)
+	bool CheckfOrThrow(const bool Result, const ExprType& Expr, const FmtType& Format, Types ... Args)
 	{
 		if (GIsAutomationTesting || GIsGGTests)
 		{
 			return AssertHelpers::LogAndThrow(Result, Expr, Format, Args...);
 		}
-		else
-		{
-			checkf(Result, Format, Args...);
-		}
+		checkf(Result, Format, Args...);
 		return true;
 	}
 
 	template <typename ExprType, typename FmtType, typename... Types>
-	inline bool EnsureMsgfOrThrow(const bool Result, const ExprType& Expr, const FmtType& Format, Types ... Args)
+	bool EnsureMsgfOrThrow(const bool Result, const ExprType& Expr, const FmtType& Format, Types ... Args)
 	{
 		if (GIsAutomationTesting || GIsGGTests)
 		{
 			return AssertHelpers::LogAndThrow(Result, Expr, Format, Args...);
 		}
-		else
-		{
-			return ensureMsgf(Result, Format, Args...);
-		}
+		return ensureMsgf(Result, Format, Args...);
 	}
 
 	template <typename ExprType, typename FmtType, typename... Types>
-	inline bool LogAndThrow(const bool Result, const ExprType& Expr, const FmtType& Format, Types ... Args)
+	bool LogAndThrow(const bool Result, const ExprType& Expr, const FmtType& Format, Types ... Args)
 	{
 		if (!Result)
 		{
