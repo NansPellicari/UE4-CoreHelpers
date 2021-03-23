@@ -1,4 +1,4 @@
-//  Copyright 2020-present Nans Pellicari (nans.pellicari@gmail.com).
+// Copyright 2020-present Nans Pellicari (nans.pellicari@gmail.com).
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ struct NANSCOREHELPERS_API FZoneBox
 	FZoneBox(FVector _Origin, FVector _Extent, FRotator _Rotation) : Origin(_Origin), Extent(_Extent),
 																	 Rotation(_Rotation) {}
 
-	/** Only returns the FBox (AAB) build with origin and extend */
+	/** Only returns the FBox (AABB) build with origin and extend */
 	FBox GetBox() const;
 	/** Returns the FBox (AABB) build with origin and extend + rotation */
 	FBox GetBoundingBox() const;
@@ -72,7 +72,7 @@ struct NANSCOREHELPERS_API FZoneBox
 	FOrientedBox GetOrientedBox() const;
 	/** Returns the FSphere which wraps everything */
 	FSphere GetSphere() const;
-	/** Returns the FSphere inscribed (in the X & Y axis only) on the AAB box */
+	/** Returns the inscribed FSphere (in the X & Y axis only) on the AABB */
 	FSphere GetSphereXY() const;
 	bool Intersect(const FZoneBox& Other) const;
 	bool Intersect(const FSphere& Other) const;
