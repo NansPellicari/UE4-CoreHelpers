@@ -48,6 +48,17 @@ namespace AssertHelpers
 	}
 
 	template <typename ExprType, typename FmtType, typename... Types>
+	bool LogAndThrow(const bool Result, const ExprType& Expr, const FmtType& Format, Types ... Args)
+	{
+		if (!Result)
+		{
+			UE_LOG(LogTemp, Display, Format, Args...);
+			if (GNAssertThrowError) throw Expr;
+		}
+		return Result;
+	}
+
+	template <typename ExprType, typename FmtType, typename... Types>
 	bool CheckfOrThrow(const bool Result, const ExprType& Expr, const FmtType& Format, Types ... Args)
 	{
 		if (GIsAutomationTesting || GIsGGTests)
@@ -66,17 +77,6 @@ namespace AssertHelpers
 			return AssertHelpers::LogAndThrow(Result, Expr, Format, Args...);
 		}
 		return ensureMsgf(Result, Format, Args...);
-	}
-
-	template <typename ExprType, typename FmtType, typename... Types>
-	bool LogAndThrow(const bool Result, const ExprType& Expr, const FmtType& Format, Types ... Args)
-	{
-		if (!Result)
-		{
-			UE_LOG(LogTemp, Display, Format, Args...);
-			if (GNAssertThrowError) throw Expr;
-		}
-		return Result;
 	}
 } // namespace AssertHelpers
 #else
