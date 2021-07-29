@@ -19,8 +19,8 @@ public:
 
 	float GetBoundValue(const float& Percent) const
 	{
-		float MinBound = FMath::Min(Lh, Rh);
-		float MaxBound = FMath::Max(Lh, Rh);
+		const float MinBound = FMath::Min(Lh, Rh);
+		const float MaxBound = FMath::Max(Lh, Rh);
 		return (MaxBound - MinBound) * Percent + MinBound;
 	}
 };

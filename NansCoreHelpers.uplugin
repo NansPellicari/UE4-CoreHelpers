@@ -2,14 +2,15 @@
 	"FileVersion": 3,
 	"Version": 1,
 	"VersionName": "1.0",
-	"FriendlyName": "NansCoreHelpers",
-	"Description": "",
+	"FriendlyName": "Nans Core Helpers",
+	"EngineVersion" : "4.27.x",
+	"Description": "A basic plugin providing basics helpers to develop in c++",
 	"Category": "Other",
 	"CreatedBy": "Nans Pellicari",
 	"CreatedByURL": "https://github.com/NansPellicari",
-	"DocsURL": "",
+	"DocsURL": "https://github.com/NansPellicari/UE4-CoreHelpers",
 	"MarketplaceURL": "",
-	"SupportURL": "",
+	"SupportURL": "https://github.com/NansPellicari/UE4-CoreHelpers",
 	"CanContainContent": false,
 	"IsBetaVersion": false,
 	"IsExperimentalVersion": false,
@@ -18,13 +19,12 @@
 		{
 			"Name": "NansCoreHelpers",
 			"Type": "DeveloperTool",
-			"LoadingPhase": "Default"
-		}
-	],
-	"Plugins": [
-		{
-			"Name": "NansUE4TestsHelpers",
-			"Enabled": true
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms" :
+			[
+				"Win64",
+				"Win32"
+			]
 		}
 	]
 }
