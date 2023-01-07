@@ -45,7 +45,7 @@ enum class EZoneCollider : uint8
 USTRUCT(BlueprintType)
 struct NANSCOREHELPERS_API FZoneBox
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ZoneBox|Settings")
 	FVector Origin;

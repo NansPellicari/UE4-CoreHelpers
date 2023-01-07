@@ -18,7 +18,15 @@
 		{
 			"Name": "NansCoreHelpers",
 			"Type": "DeveloperTool",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Win64",
+				"Mac",
+				"Linux"
+			],
+			"WhitelistTargets": [
+				"Editor"
+			]
 		}
 	],
 	"Plugins": [
