@@ -12,26 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using UnrealBuildTool;
-
-public class NansCoreHelpers : ModuleRules
+namespace UnrealBuildTool.Rules
 {
-	public NansCoreHelpers(ReadOnlyTargetRules Target) : base(Target)
+	public class NansCoreHelpers : ModuleRules
 	{
-		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-		
-		PublicDependencyModuleNames.AddRange(
-			new string[]
-			{
-				"Core",
-			}
+		public NansCoreHelpers(ReadOnlyTargetRules Target) : base(Target)
+		{
+			PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+
+			PublicDependencyModuleNames.AddRange(
+				new[]
+				{
+					"Core"
+				}
 			);
 
-		PrivateDependencyModuleNames.AddRange(
-			new string[]
-			{
-				"CoreUObject",
-			}
+			PrivateDependencyModuleNames.AddRange(
+				new[]
+				{
+					"CoreUObject",
+				}
 			);
+		}
 	}
 }
